@@ -9,6 +9,7 @@ import Epub from 'epub-gen-memory';
 
 import type { CommandOptions, NovelSearchResult, INovel } from './types';
 
+import { padLeft } from './utils';
 import { fetch } from './utils/fetch';
 import { Scheduler, retryFn } from './utils/scheduler';
 
@@ -71,10 +72,13 @@ export async function downloadNovel(novelId: number, options: CommandOptions) {
           for (const { chapterIndex, chapterTitle, chapterUrl } of chapters) {
             scheduler.add(async () => {
               try {
+                const ammountLenth = String(amount).length;
+                const progressText = ` ${padLeft(String(count + 1), ammountLenth)}/${amount} `;
+
                 if (!options.onlyImages) {
                   spinner.start(
-                    `正在下载：` +
-                      chalk.bold.black.bgWhite(` ${count + 1}/${amount} `) +
+                    chalk.bold.black.bgWhite(progressText) +
+                      ` 正在下载：` +
                       chalk.blue.bold(`${volume.name}、${chapterTitle}`)
                   );
                 }
@@ -130,8 +134,8 @@ export async function downloadNovel(novelId: number, options: CommandOptions) {
                 }
                 if (!options.onlyImages) {
                   spinner.succeed(
-                    `下载成功：` +
-                      chalk.bold.black.bgGreen(` ${count + 1}/${amount} `) +
+                    chalk.bold.black.bgGreen(progressText) +
+                      ` 下载成功：` +
                       chalk.blue.bold(`${volume.name}、${chapterTitle}`)
                   );
                 }
