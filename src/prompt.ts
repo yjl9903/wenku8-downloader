@@ -13,6 +13,8 @@ enum Questions {
 }
 
 export async function run(options: CommandOptions) {
+    init();
+
     function init() {
         const questions = [
             {
