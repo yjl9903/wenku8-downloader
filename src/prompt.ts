@@ -184,14 +184,19 @@ export async function promptNovelDetails(novelId: number, options: CommandOption
   console.log(desc);
   console.log();
 
-  const { type } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'type',
-      message: '是否下载该小说？',
-    },
-  ]);
-  if (type) {
+  const yes =
+    options.yes ??
+    (
+      await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'type',
+          message: '是否下载该小说？',
+        },
+      ])
+    )?.type ??
+    false;
+  if (yes) {
     downloadNovel(novelId, options);
   }
 }

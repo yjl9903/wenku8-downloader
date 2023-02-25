@@ -5,6 +5,7 @@ export interface CommandOptions {
   outDir: string;
   verbose: boolean;
   strict: boolean;
+  yes: boolean;
 }
 
 export interface NovelSearchResult {
