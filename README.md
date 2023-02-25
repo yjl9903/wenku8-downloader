@@ -1,9 +1,8 @@
-轻小说文库下载器
-=======================================================
+# 轻小说文库下载器
 
 [![npm version](https://badge.fury.io/js/wenku8.svg)](https://badge.fury.io/js/wenku8)
 
-![](assets/screenshot-20220902-182148.png)
+![screen shot](assets/screenshot-20220902-182148.png)
 
 ## 介绍
 
@@ -14,8 +13,6 @@
 - 支持生成*markdown*文件
 - 支持仅下载小说插图
 - 支持下载轻小说文库站点已下架的小说，如《无职转生》
-
-
 
 ## 安装
 
@@ -28,8 +25,6 @@ npm install wenku8 -g # yarn global add wenku8
 wenku8 
 ```
 
-
-
 ### 本地安装
 
 ``` shell
@@ -39,7 +34,7 @@ npx wenku8
 
 ## 使用方式
 
-### 方式一、生成epub电子书（默认行为）
+### 方式一、生成 epub 电子书（默认行为）
 
 ``` shell
 wenku8 
@@ -57,13 +52,9 @@ wenku8 --strict
 wenku8 --strict --verbose
 ```
 
+![lib](assets/screenshot-20220903-184109.png)
 
-
-![](assets/screenshot-20220903-184109.png)
-
-![](assets/screenshot-20220903-184223.png)
-
-
+![preview](assets/screenshot-20220903-184223.png)
 
 ### 方式二、下载Markdown文件以及插图
 
@@ -71,11 +62,7 @@ wenku8 --strict --verbose
 wenku8 --no-epub
 ```
 
-![](assets/screenshot-20220902-182437.png)
-
-
-
-
+![no epub](assets/screenshot-20220902-182437.png)
 
 ### 方式三、仅下载小说插图
 
@@ -83,31 +70,20 @@ wenku8 --no-epub
 wenku8 --no-epub --onlyImages
 ```
 
-
-
-
-
-
-
 ## 本地调试
 
 ``` shell
 git clone https://github.com/Messiahhh/wenku8-downloader.git
 cd wenku8-downloader
-npm install
+pnpm install
 
-npm start
-npm start -- --no-epub
-npm start -- --no-epub --onlyImages
+pnpm start
+pnpm start --no-epub
+pnpm start --no-epub --onlyImages
 ```
-
-
 
 ## 贡献者
 
 <a href="https://github.com/Messiahhh/wenku8-downloader/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Messiahhh/wenku8-downloader" />
 </a>
-
-
-
