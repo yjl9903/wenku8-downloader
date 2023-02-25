@@ -19,13 +19,13 @@ const program = breadc('wenku8', {
     },
   ],
 })
-  .option('--epub', '是否生成epub电子书 (默认：生成)', { default: true })
-  .option('--ext <ext>', { description: '不生成epub电子书时，默认生成markdown文件', default: 'md' })
+  .option('--no-epub', '是否禁用生成 epub 电子书')
+  .option('--ext <ext>', { description: '不生成 epub 电子书时，默认生成 markdown 文件', default: 'md' })
   .option('-y, --yes', '是否进行确认')
   .option('--only-images', '只下载小说的插图')
   .option('-o, --out-dir <dir>', { description: '指定小说放置目录，默认在当前目录下生成', default: './novels' })
   .option('--verbose', '显示更多日志')
-  .option('--strict', '严格模式下图片的下载失败将会阻止epub文件的生成');
+  .option('--strict', '严格模式下图片的下载失败将会阻止 epub 文件的生成');
 
 program.command('', '开始交互式选择轻小说下载').action(async (options: CommandOptions) => {
   console.log(
