@@ -13,9 +13,9 @@ enum Questions {
 }
 
 export async function run(options: CommandOptions) {
-    init();
+    await init();
 
-    function init() {
+    async function init() {
         const questions = [
             {
                 type: 'list',
@@ -29,105 +29,99 @@ export async function run(options: CommandOptions) {
                 ],
             },
         ];
-        inquirer.prompt(questions).then(({ question }) => {
-            questionTwo(question);
+        inquirer.prompt(questions).then(async ({ question }) => {
+            await questionTwo(question);
         });
     }
 
-    function questionTwo(question: keyof typeof Questions) {
+    async function questionTwo(question: keyof typeof Questions) {
         switch (question as keyof typeof Questions) {
             case Questions[Questions.查看热门小说]: {
-                promptForView();
+                await promptForView();
                 break;
             }
 
             case Questions[Questions.搜索小说]: {
-                promptForSearch();
+                await promptForSearch();
                 break;
             }
 
             case Questions[Questions.下载小说]: {
-                promptForDownload();
+                await promptForDownload();
                 break;
             }
             default: {
             }
         }
 
-        function promptForView() {
-            inquirer
-                .prompt([
-                    {
-                        type: 'list',
-                        name: 'type',
-                        message: '请选择查询方式',
-                        choices: [
-                            '新番原作',
-                            '新书风云榜',
-                            '本周会员推荐',
-                            new inquirer.Separator(),
-                            '今日热榜',
-                            '本月热榜',
-                            '最受关注',
-                            '已动画化',
-                            '最新入库',
-                            '返回',
-                        ],
-                        pageSize: 20,
-                    },
-                ])
-                .then(async ({ type }) => {
-                    if (type === '返回') {
-                        init();
-                    } else {
-                        const spinner = ora('请求中，请稍等...').start();
-                        const result = await getHotList();
-                        spinner.stop();
-                        const novels = result.find(({ type: t }) => t === type)!.novels;
-                        promptNovelList(novels, question);
-                    }
-                });
-        }
-        function promptForSearch() {
-            inquirer
-                .prompt([
-                    {
-                        type: 'list',
-                        name: 'type',
-                        message: '请选择查询方式',
-                        choices: [
-                            { value: 'articlename', name: '根据小说名' },
-                            { value: 'author', name: '根据作者名' },
-                            '返回',
-                        ],
-                    },
-                    {
-                        type: 'input',
-                        name: 'searchKey',
-                        message: '请输入关键字',
-                        when({ type }) {
-                            return type !== '返回';
-                        },
-                    },
-                ])
-                .then(async ({ type, searchKey }) => {
-                    if (type === '返回') {
-                        return init();
-                    } else if (searchKey) {
-                        const spinner = ora('请求中，请稍等...').start();
-                        const novels = await search(searchKey, type);
-                        spinner.stop();
-                        if (novels) {
-                            promptNovelList(novels, question);
-                        } else {
-                            console.log('未查询到符合的结果');
-                        }
-                    }
-                });
+        async function promptForView() {
+            const { type } = await inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'type',
+                    message: '请选择查询方式',
+                    choices: [
+                        '新番原作',
+                        '新书风云榜',
+                        '本周会员推荐',
+                        new inquirer.Separator(),
+                        '今日热榜',
+                        '本月热榜',
+                        '最受关注',
+                        '已动画化',
+                        '最新入库',
+                        '返回',
+                    ],
+                    pageSize: 20,
+                },
+            ]);
+            if (type === '返回') {
+                await init();
+            } else {
+                const spinner = ora('请求中，请稍等...').start();
+                const result = await getHotList();
+                spinner.stop();
+
+                const novels = result.find(({ type: t }) => t === type)!.novels;
+                if ((await listNovels(novels, options)) === undefined) {
+                    await questionTwo(question);
+                }
+            }
         }
 
-        function promptForDownload() {
-            inquirer
+        async function promptForSearch() {
+            const { type, searchKey } = await inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'type',
+                    message: '请选择查询方式',
+                    choices: [
+                        { value: 'articlename', name: '根据小说名' },
+                        { value: 'author', name: '根据作者名' },
+                        '返回',
+                    ],
+                },
+                {
+                    type: 'input',
+                    name: 'searchKey',
+                    message: '请输入关键字',
+                    when({ type }) {
+                        return type !== '返回';
+                    },
+                },
+            ]);
+            if (type === '返回') {
+                await init();
+            } else if (searchKey) {
+                const id = await doSearch(searchKey, type, options);
+                if (!id) {
+                    await questionTwo(question);
+                }
+            }
+        }
+
+        async function promptForDownload() {
+            return inquirer
                 .prompt([
                     {
                         type: 'string',
@@ -138,11 +132,11 @@ export async function run(options: CommandOptions) {
                 ])
                 .then(({ urlOrId }) => {
                     if (isFinite(Number(urlOrId))) {
-                        promptNovelDetails(urlOrId);
+                        promptNovelDetails(urlOrId, options);
                     } else {
                         const result = /wenku8\.net\/book\/(\d+)\.htm$/.exec(urlOrId);
                         if (result?.[1]) {
-                            promptNovelDetails(+result[1]);
+                            promptNovelDetails(+result[1], options);
                         } else {
                             console.log('参数异常');
                         }
@@ -150,58 +144,82 @@ export async function run(options: CommandOptions) {
                 });
         }
     }
+}
 
-    function promptNovelList(novels: { novelName: string; novelId: number }[], step: keyof typeof Questions) {
-        return inquirer
-            .prompt([
-                {
-                    type: 'list',
-                    name: 'id',
-                    message: '小说详情',
-                    choices: novels
-                        .map(({ novelName, novelId }) => ({
-                            value: novelId,
-                            name: novelName,
-                        }))
-                        .concat([{ value: 0, name: '返回上一级' }]),
-
-                    pageSize: 20,
-                },
-            ])
-            .then(async ({ id }) => {
-                if (!id) {
-                    return questionTwo(step);
-                }
-                promptNovelDetails(id);
-            });
+export async function doSearch(key: string, type: 'articlename' | 'author', options: CommandOptions) {
+    const spinner = ora(`正在搜索${type === 'articlename' ? '标题为' : '作者为'}${key}的轻小说，请稍等...`).start();
+    const novels = await search(key, type);
+    spinner.stop();
+    if (novels) {
+        return await listNovels(novels, options);
+    } else {
+        console.log('未查询到符合的结果');
+        return undefined;
     }
+}
 
-    async function promptNovelDetails(novelId: number) {
-        const spinner = ora('请求中，请稍等...').start();
-        const { novelName, author, status, lastUpdateTime, length, tag, recentChapter, desc } = await getNovelDetails(
-            novelId
-        );
-        spinner.stop();
-        const table = new Table({
-            head: ['小说名', '作者', '标签', '完结状态', '全文长度', '最近更新时间', '最近章节'],
-            wordWrap: true,
-            wrapOnWordBoundary: true,
-        });
-        table.push([novelName, author, tag, status, length, lastUpdateTime, recentChapter]);
-        console.log('简介：' + desc);
-        console.log(table.toString());
-        inquirer
-            .prompt([
-                {
-                    type: 'confirm',
-                    name: 'type',
-                    message: '是否下载该小说？',
-                },
-            ])
-            .then(({ type }) => {
-                if (type) {
-                    downloadNovel(novelId, options);
-                }
-            });
+export async function listNovels(
+    novels: { novelName: string; novelId: number }[],
+    options: CommandOptions
+): Promise<number | undefined> {
+    if (novels.length === 0) {
+        return undefined;
+    } else if (novels.length === 1) {
+        const id = novels[0].novelId;
+        await promptNovelDetails(id, options);
+        return id;
+    } else {
+        const { id } = await inquirer.prompt([
+            {
+                type: 'list',
+                name: 'id',
+                message: '小说详情',
+                choices: novels
+                    .map(({ novelName, novelId }) => ({
+                        value: novelId,
+                        name: novelName,
+                    }))
+                    .concat([{ value: 0, name: '返回上一级' }]),
+                pageSize: 20,
+            },
+        ]);
+        if (id) {
+            await promptNovelDetails(id, options);
+            return id;
+        } else {
+            return undefined;
+        }
+    }
+}
+
+export async function promptNovelDetails(novelId: number, options: CommandOptions) {
+    const spinner = ora('请求中，请稍等...').start();
+    const { novelName, author, status, lastUpdateTime, length, tag, recentChapter, desc } = await getNovelDetails(
+        novelId
+    );
+    spinner.stop();
+
+    const table = new Table({
+        head: ['小说名', '作者', '标签', '完结状态', '全文长度', '最近更新时间', '最近章节'],
+        wordWrap: true,
+        wrapOnWordBoundary: true,
+    });
+    table.push([novelName, author, tag, status, length, lastUpdateTime, recentChapter]);
+
+    console.log(chalk.bold('小说信息：'));
+    console.log(table.toString());
+    console.log(chalk.bold('简介：'));
+    console.log(desc);
+    console.log();
+
+    const { type } = await inquirer.prompt([
+        {
+            type: 'confirm',
+            name: 'type',
+            message: '是否下载该小说？',
+        },
+    ]);
+    if (type) {
+        downloadNovel(novelId, options);
     }
 }
