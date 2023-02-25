@@ -7,6 +7,8 @@ import ora from 'ora';
 import chalk from 'chalk';
 import Epub from 'epub-gen-memory';
 
+import type { CommandOptions, NovelSearchResult, INovel } from './types';
+
 import { fetch } from './utils/fetch';
 import { Scheduler, retryFn } from './utils/scheduler';
 
@@ -391,12 +393,7 @@ export async function getNovelDetails(novelId: number): Promise<INovel> {
 export async function search(
     search: string,
     type: 'articlename' | 'author' = 'articlename'
-): Promise<
-    Array<{
-        novelName: string;
-        novelId: number;
-    }>
-> {
+): Promise<NovelSearchResult[]> {
     const searchKey = [...iconv.encode(search, 'gbk')].map(i => `%${i.toString(16)}`).join('');
     const $ = await fetch(
         `https://www.wenku8.net/modules/article/search.php?searchtype=${type}&searchkey=${searchKey}`
@@ -436,10 +433,7 @@ export async function search(
 export async function getHotList(): Promise<
     Array<{
         type: string;
-        novels: {
-            novelName: string;
-            novelId: number;
-        }[];
+        novels: NovelSearchResult[];
     }>
 > {
     const $ = await fetch('https://www.wenku8.net/index.php');
@@ -501,6 +495,7 @@ export async function getHotList(): Promise<
             };
         })
         .get();
+
     return [...centersResult, ...rightResult];
 
     function aliasRight(index: number): string {

@@ -3,6 +3,8 @@ import chalk from 'chalk';
 import Table from 'cli-table3';
 import inquirer from 'inquirer';
 
+import type { CommandOptions, NovelSearchResult } from './types';
+
 import { downloadNovel, getHotList, getNovelDetails, search } from './downloader';
 
 enum Questions {
@@ -135,10 +137,7 @@ export async function run(options: CommandOptions) {
     }
 }
 
-export async function listNovels(
-    novels: { novelName: string; novelId: number }[],
-    options: CommandOptions
-): Promise<number | undefined> {
+export async function listNovels(novels: NovelSearchResult[], options: CommandOptions): Promise<number | undefined> {
     if (novels.length === 0) {
         return undefined;
     } else if (novels.length === 1) {

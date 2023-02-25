@@ -4,6 +4,8 @@ import chalk from 'chalk';
 
 import { version } from '../package.json';
 
+import type { CommandOptions } from './types';
+
 import { getCookie } from './utils/fetch';
 
 const program = breadc('wenku8', {
