@@ -1,20 +1,26 @@
+type AsyncFn = (...args: unknown[]) => Promise<unknown>;
+
 export class Scheduler {
-    done = 0;
-    amount = 0;
-    limit: number;
-    queue: Array<(...args: unknown[]) => Promise<unknown>>;
-    tasks: Array<Promise<unknown>>;
+    private done = 0;
+
+    private amount = 0;
+
+    private limit: number;
+
+    private queue: AsyncFn[];
+
+    /**
+     * 正在执行中的任务
+     */
+    private tasks: Promise<unknown>[];
 
     constructor(count: number) {
         this.limit = count;
         this.queue = [];
-        /**
-         * 正在执行中的任务
-         */
         this.tasks = [];
     }
 
-    add(task: (typeof this.queue)[number]) {
+    add(task: AsyncFn) {
         if (this.tasks.length < this.limit) {
             this.amount++;
             const promise = task();
@@ -32,11 +38,11 @@ export class Scheduler {
         }
     }
 
-    onFinish() {
+    onFinish(): Promise<void> {
         return new Promise(resolve => {
             const timer = setInterval(() => {
                 if (!this.tasks.length && !this.queue.length && this.done === this.amount) {
-                    resolve('all tasks finished');
+                    resolve();
                     clearInterval(timer);
                 }
             }, 1000);
@@ -44,7 +50,7 @@ export class Scheduler {
     }
 }
 
-export async function retryFn<T extends () => Promise<any>>(asyncFn: T, times = 10): Promise<ReturnType<T>> {
+export async function retryFn<R>(asyncFn: () => Promise<R>, times = 10): Promise<R> {
     try {
         return asyncFn();
     } catch (error) {
