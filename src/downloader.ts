@@ -5,9 +5,10 @@ import path from 'path';
 import util from 'util';
 import ora from 'ora';
 import chalk from 'chalk';
-import { Scheduler, retryFn } from './utils/Scheduler.js';
-import { fetch } from './utils/fetch.js';
 import Epub from 'epub-gen-memory';
+
+import { fetch } from './utils/fetch';
+import { Scheduler, retryFn } from './utils/Scheduler';
 
 const BASE_URL = 'https://www.wenku8.net/book/';
 const spinner = ora();

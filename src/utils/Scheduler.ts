@@ -14,7 +14,7 @@ export class Scheduler {
         this.tasks = [];
     }
 
-    add(task: typeof this.queue[number]) {
+    add(task: (typeof this.queue)[number]) {
         if (this.tasks.length < this.limit) {
             this.amount++;
             const promise = task();
