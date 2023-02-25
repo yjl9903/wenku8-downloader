@@ -113,48 +113,25 @@ export async function run(options: CommandOptions) {
             if (type === '返回') {
                 await init();
             } else if (searchKey) {
-                const id = await doSearch(searchKey, type, options);
-                if (!id) {
+                if ((await doSearch(searchKey, type, options)) === undefined) {
                     await questionTwo(question);
                 }
             }
         }
 
         async function promptForDownload() {
-            return inquirer
-                .prompt([
-                    {
-                        type: 'string',
-                        name: 'urlOrId',
-                        message: '请输入小说详情页链接，或者小说ID',
-                        suffix: chalk.gray('（链接格式如下：www.wenku8.net/book/1973.htm）'),
-                    },
-                ])
-                .then(({ urlOrId }) => {
-                    if (isFinite(Number(urlOrId))) {
-                        promptNovelDetails(urlOrId, options);
-                    } else {
-                        const result = /wenku8\.net\/book\/(\d+)\.htm$/.exec(urlOrId);
-                        if (result?.[1]) {
-                            promptNovelDetails(+result[1], options);
-                        } else {
-                            console.log('参数异常');
-                        }
-                    }
-                });
+            const { urlOrId } = await inquirer.prompt([
+                {
+                    type: 'string',
+                    name: 'urlOrId',
+                    message: '请输入小说详情页链接，或者小说ID',
+                    suffix: chalk.gray('（链接格式如下：www.wenku8.net/book/1973.htm）'),
+                },
+            ]);
+            if ((await doFetch(urlOrId, options)) === undefined) {
+                await questionTwo(question);
+            }
         }
-    }
-}
-
-export async function doSearch(key: string, type: 'articlename' | 'author', options: CommandOptions) {
-    const spinner = ora(`正在搜索${type === 'articlename' ? '标题为' : '作者为'}${key}的轻小说，请稍等...`).start();
-    const novels = await search(key, type);
-    spinner.stop();
-    if (novels) {
-        return await listNovels(novels, options);
-    } else {
-        console.log('未查询到符合的结果');
-        return undefined;
     }
 }
 
@@ -221,5 +198,33 @@ export async function promptNovelDetails(novelId: number, options: CommandOption
     ]);
     if (type) {
         downloadNovel(novelId, options);
+    }
+}
+
+export async function doSearch(key: string, type: 'articlename' | 'author', options: CommandOptions) {
+    const spinner = ora(`正在搜索${type === 'articlename' ? '标题为' : '作者为'}${key}的轻小说，请稍等...`).start();
+    const novels = await search(key, type);
+    spinner.stop();
+    if (novels) {
+        return await listNovels(novels, options);
+    } else {
+        console.log('未查询到符合的结果');
+        return undefined;
+    }
+}
+
+export async function doFetch(urlOrId: string, options: CommandOptions) {
+    if (isFinite(Number(urlOrId))) {
+        await promptNovelDetails(+urlOrId, options);
+        return true;
+    } else {
+        const result = /wenku8\.net\/book\/(\d+)\.htm$/.exec(urlOrId);
+        if (result?.[1]) {
+            await promptNovelDetails(+result[1], options);
+            return true;
+        } else {
+            console.log('参数异常');
+            return undefined;
+        }
     }
 }

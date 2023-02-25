@@ -35,9 +35,14 @@ program.command('', '开始交互式选择轻小说下载').action(async (option
 program
     .command('search <name>', '搜索轻小说')
     .option('--key <type>', '搜索方式（可选：name / author）', { default: 'name' })
-    .action(async (key, option) => {
+    .action(async (key, options) => {
         const { doSearch } = await import('./prompt');
-        doSearch(key, option.key === 'name' ? 'articlename' : 'author', option);
+        await doSearch(key, options.key === 'name' ? 'articlename' : 'author', options);
     });
+
+program.command('fetch <url/id>', '使用小说详情页链接或 ID 进行下载').action(async (key, options) => {
+    const { doFetch } = await import('./prompt');
+    await doFetch(key, options);
+});
 
 program.run(process.argv.slice(2)).catch(err => console.error(err));
