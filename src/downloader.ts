@@ -8,7 +8,7 @@ import chalk from 'chalk';
 import Epub from 'epub-gen-memory';
 
 import { fetch } from './utils/fetch';
-import { Scheduler, retryFn } from './utils/Scheduler';
+import { Scheduler, retryFn } from './utils/scheduler';
 
 const BASE_URL = 'https://www.wenku8.net/book/';
 const spinner = ora();

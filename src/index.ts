@@ -2,4 +2,4 @@ export * from './downloader';
 
 export * from './utils/fetch';
 
-export * from './utils/Scheduler';
+export * from './utils/scheduler';
