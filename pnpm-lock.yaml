@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@types/cheerio': ^0.22.31
+  '@types/death': ^1.1.2
   '@types/iconv': ^3.0.1
   '@types/inquirer': ^9.0.3
   '@types/set-cookie-parser': ^2.4.2
@@ -12,6 +13,7 @@ specifiers:
   chalk: ^5.2.0
   cheerio: ^1.0.0-rc.12
   cli-table3: ^0.6.3
+  death: ^1.1.0
   epub-gen-honor: ^1.0.5
   epub-gen-loose: ^0.1.0
   epub-gen-memory: ^1.0.10
@@ -34,6 +36,7 @@ dependencies:
   chalk: 5.2.0
   cheerio: 1.0.0-rc.12
   cli-table3: 0.6.3
+  death: 1.1.0
   epub-gen-honor: 1.0.5
   epub-gen-loose: 0.1.0
   epub-gen-memory: 1.0.10
@@ -44,6 +47,7 @@ dependencies:
 
 devDependencies:
   '@types/cheerio': 0.22.31
+  '@types/death': 1.1.2
   '@types/iconv': 3.0.1
   '@types/inquirer': 9.0.3
   '@types/set-cookie-parser': 2.4.2
@@ -701,6 +705,10 @@ packages:
       '@types/node': 18.14.1
     dev: true
 
+  /@types/death/1.1.2:
+    resolution: {integrity: sha512-Rr5NV/H/zj6zgbh6TCwMEe0NhCVS2QbAor0pikvzGx5fh+xsnmV3KUEq2Vb4vgi9ytBHorva+ryQmij2rrstTQ==}
+    dev: true
+
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
     dev: true
@@ -1355,6 +1363,10 @@ packages:
   /data-uri-to-buffer/3.0.1:
     resolution: {integrity: sha512-WboRycPNsVw3B3TL559F7kuBUM4d8CgMEvk6xEJlOp7OBPjt6G7z8WMWlD2rOFZLk6OYfFIUGsCOWzcQH9K2og==}
     engines: {node: '>= 6'}
+    dev: false
+
+  /death/1.1.0:
+    resolution: {integrity: sha512-vsV6S4KVHvTGxbEcij7hkWRv0It+sGGWVOM67dQde/o5Xjnr+KmLjxWJii2uEObIrt1CcM9w0Yaovx+iOlIL+w==}
     dev: false
 
   /debug/3.2.7:

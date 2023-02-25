@@ -1,3 +1,5 @@
+import onDeath from 'death';
+
 type AsyncFn = (...args: unknown[]) => Promise<unknown>;
 
 export class Scheduler {
@@ -40,10 +42,16 @@ export class Scheduler {
 
   onFinish(): Promise<void> {
     return new Promise(resolve => {
+      const cancel = onDeath(() => {
+        clearInterval(timer);
+        process.exit(1);
+      });
+
       const timer = setInterval(() => {
         if (!this.tasks.length && !this.queue.length && this.done === this.amount) {
           resolve();
           clearInterval(timer);
+          cancel();
         }
       }, 1000);
     });
